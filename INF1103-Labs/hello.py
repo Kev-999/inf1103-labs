@@ -10,3 +10,12 @@ followers = 100
 print("Username:",username)
 print("bio:",bio)
 print("followers:",followers)
+
+followers += 50
+print("Day 1 :",followers)
+
+followers += 100
+print("Day 2 :",followers)
+
+followers -= 10
+print("Day 3 :",followers)
