@@ -4,15 +4,18 @@ def load_orders():
             lines = file.readlines()
             orders = []
             for line in lines:
-                # Remove whitespace and split by comma
                 parts = line.strip().split(",")
                 if len(parts) == 3:
-                    # Store as a list: [ID, Name, Quantity]
                     orders.append([parts[0], parts[1], int(parts[2])])
             return orders
     except FileNotFoundError:
-        # Return an empty list if the file doesn't exist yet
         return []
+
+def save_orders(orders):
+    with open("orders.txt", "w") as file:
+        for order in orders:
+            # Write format: ID,Name,Quantity
+            file.write(f"{order[0]},{order[1]},{order[2]}\n")
 
 def get_valid_quantity():
     while True:
@@ -26,6 +29,7 @@ def get_valid_quantity():
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+# --- Main Program (Phase C) ---
 orders = load_orders()
 
 print("Current Orders:")
@@ -35,22 +39,24 @@ for order in orders:
 
 print()
 
-# Get New Order Input
 product_name = input("Enter Product Name: ")
 quantity = get_valid_quantity()
 
-# Generate New Order ID
 if orders:
     last_id = int(orders[-1][0])
     new_id = str(last_id + 1)
 else:
     new_id = "1001"
 
-# Add the new order to the list (Tracking History)
 new_order = [new_id, product_name, quantity]
 orders.append(new_order)
 
-# Display New Order Added
 print()
 print("New Order Added:")
 print(f"{new_id},{product_name},{quantity}")
+
+# Save everything to file
+save_orders(orders)
+
+print()
+print("Order successfully saved to orders.txt")
