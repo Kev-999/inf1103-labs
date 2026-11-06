@@ -7,7 +7,6 @@ class CanBeShipped(ABC):
     def calculate_shipping_cost(self):
         pass
 
-
 class Product(ABC):
     def __init__(self, product_id: str, name: str, price: float, stock_quantity: int):
         self.product_id = product_id
@@ -25,7 +24,6 @@ class Product(ABC):
     def get_fulfilment_info(self):
         pass
 
-
 class PhysicalProduct(Product, CanBeShipped):
     def __init__(self, product_id: str, name: str, price: float, stock_quantity: int, weight: float):
         super().__init__(product_id, name, price, stock_quantity)
@@ -42,7 +40,6 @@ class PhysicalProduct(Product, CanBeShipped):
         # simple rule: $2.5 per kg
         return round(self.weight * 2.5, 2)
 
-
 class DigitalProduct(Product):
     def __init__(self, product_id: str, name: str, price: float, stock_quantity: int, download_size: float):
         super().__init__(product_id, name, price, stock_quantity)
@@ -55,10 +52,10 @@ class DigitalProduct(Product):
     def get_fulfilment_info(self):
         return "This product will be delivered via digital download."
 
-
 class Inventory:
     def __init__(self):
         self.products = {}  # key: product_id, value: Product object
+        self.filename = "inventory3.json"
 
     def add_product(self, product: Product):
         self.products[product.product_id] = product
@@ -83,7 +80,7 @@ class Inventory:
     def search_product(self, pid: str):
         return self.products.get(pid)
 
-    def save_to_json(self, filename="inventory3.json"):
+    def save_to_json(self):
         data_list = []
         for p in self.products.values():
             base = {
@@ -99,14 +96,20 @@ class Inventory:
                 base["type"] = "digital"
                 base["download_size"] = p.download_size
             data_list.append(base)
-        with open(filename, "w") as f:
+        with open(self.filename, "w", encoding="utf-8") as f:
             json.dump(data_list, f, indent=2)
 
-    def load_from_json(self, filename="inventory.json"):
-        if not os.path.exists(filename):
+    def load_from_json(self):
+        if not os.path.exists(self.filename):
+            print(f"Note: {self.filename} not found, starting empty inventory.")
             return
-        with open(filename, "r") as f:
-            data_list = json.load(f)
+        try:
+            with open(self.filename, "r", encoding="utf-8") as f:
+                data_list = json.load(f)
+        except json.JSONDecodeError:
+            print("Error: JSON file corrupted, starting empty inventory.")
+            return
+
         self.products.clear()
         for item in data_list:
             if item["type"] == "physical":
@@ -128,7 +131,6 @@ class Inventory:
             else:
                 continue
             self.add_product(prod)
-
 
 def main():
     inv = Inventory()
@@ -185,11 +187,11 @@ def main():
 
         elif choice == "5":
             inv.save_to_json()
-            print("Saved to inventory.json")
+            print("Saved to inventory3.json")
 
         elif choice == "6":
             inv.load_from_json()
-            print("Loaded from inventory.json")
+            print("Loaded from inventory3.json")
 
         elif choice == "0":
             inv.save_to_json()
